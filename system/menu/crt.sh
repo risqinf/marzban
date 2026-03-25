@@ -1,25 +1,23 @@
 #!/bin/bash
-
-# Load email dan domain dari file konfigurasi
-email=$(cat /etc/data/email)
+clear
 domain=$(cat /etc/data/domain)
 
-marzban down > /dev/null 2>&1
+echo -e "\e[94m[INFO]\e[0m Mematikan layanan Marzban sementara..."
+cd /opt/marzban && docker compose down
 
-# Install Acme
-curl https://get.acme.sh | sh -s > /dev/null 2>&1
+echo -e "\e[94m[INFO]\e[0m Memulai proses generate sertifikat (Let's Encrypt) untuk $domain..."
+/root/.acme.sh/acme.sh --issue -d $domain --standalone --server letsencrypt --force
 
-# Force renew certificate
-/root/.acme.sh/acme.sh --renew -d $domain --force --server buypass
-
-# Install renewed certificate
+echo -e "\e[94m[INFO]\e[0m Menginstal sertifikat ke direktori Marzban..."
+# Menggunakan fullchain agar tidak ada issue "missing intermediate cert"
 /root/.acme.sh/acme.sh --install-cert -d $domain \
-    --cert-file /var/lib/marzban/xray.crt \
+    --fullchain-file /var/lib/marzban/xray.crt \
     --key-file /var/lib/marzban/xray.key
 
-# Set permissions
 chmod 755 /var/lib/marzban/xray.crt
 chmod 755 /var/lib/marzban/xray.key
 
-marzban up > /dev/null 2>&1
-echo "Renewal process completed for domain: $domain"
+echo -e "\e[94m[INFO]\e[0m Menyalakan kembali layanan Marzban..."
+cd /opt/marzban && docker compose up -d
+
+echo -e "\e[92m[SUCCESS]\e[0m Sertifikat berhasil diperbarui!"

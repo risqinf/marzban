@@ -1,76 +1,40 @@
 #!/bin/bash
+clear
+echo -e "\e[96m======================================\e[0m"
+echo -e "         \e[93mSTATUS LAYANAN VPS\e[0m           "
+echo -e "\e[96m======================================\e[0m"
 
-port=$(netstat -tunlp | grep 'python' | awk '{split($4, a, ":"); print a[2]}')
-
-# // Code for service
-export RED='\033[0;31m';
-export GREEN='\033[0;32m';
-export YELLOW='\033[0;33m';
-export BLUE='\033[0;34m';
-export PURPLE='\033[0;35m';
-export CYAN='\033[0;36m';
-export LIGHT='\033[0;37m';
-export NC='\033[0m';
-
-# // Export Banner Status Information
-export ERROR="[${RED} ERROR ${NC}]";
-export INFO="[${YELLOW} INFO ${NC}]";
-export OKEY="[${GREEN} OKEY ${NC}]";
-export PENDING="[${YELLOW} PENDING ${NC}]";
-export SEND="[${YELLOW} SEND ${NC}]";
-export RECEIVE="[${YELLOW} RECEIVE ${NC}]";
-
-# NGINX
-if [[ $(netstat -ntlp | grep -i nginx | grep -i 0.0.0.0:80 | awk '{print $4}' | cut -d: -f2 | xargs | sed -e 's/ /, /g') == '80' ]]; then
-    NGINX="${GREEN}Okay${NC}";
-else
-    NGINX="${RED}Not Okay${NC}";
-fi
-
-# MARZBAN
-if [[ $(netstat -ntlp | grep -i python | grep -i "0.0.0.0:${port}" | awk '{print $4}' | cut -d: -f2 | xargs | sed -e 's/ /, /g') == "${port}" ]]; then
-    MARZ="${GREEN}Okay${NC}";
-else
-    MARZ="${RED}Not Okay${NC}";
-fi
-
-# XRAY
-if [[ $(netstat -ntlp | grep -i xray | grep -i 127.0.0.1:2022 | awk '{print $4}' | cut -d: -f2 | xargs | sed -e 's/ /, /g') == '2022' ]]; then
-    XRAY="${GREEN}Okay${NC}";
-else
-    XRAY="${RED}Not Okay${NC}";
-fi
-
-# DOCKER
-if [[ $(systemctl is-active docker) == 'active' ]]; then
-    RUNNING_CONTAINERS=$(docker ps -q | wc -l)
-    if [ "$RUNNING_CONTAINERS" -gt 0 ]; then
-        DOCKER="${GREEN}Okay${NC}";
+# Fungsi cek layanan sistem (systemctl)
+check_status() {
+    local service=$1
+    local name=$2
+    if systemctl is-active --quiet "$service"; then
+        printf "%-20s : \e[92m[ ON ]\e[0m\n" "$name"
     else
-        DOCKER="${YELLOW}Running No Container${NC}";
+        printf "%-20s : \e[91m[ OFF ]\e[0m\n" "$name"
     fi
-else
-    DOCKER="${RED}Not Okay${NC}";
-fi
+}
 
-# Dropbear
-if [[ $(netstat -ntlp | grep -i dropbear | grep -i 0.0.0.0:111 | awk '{print $4}' | cut -d: -f2 | xargs | sed -e 's/ /, /g') == '109' ]]; then
-    drop="${GREEN}Okay${NC}";
-else
-    drop="${RED}Not Okay${NC}";
-fi
+# Fungsi cek layanan docker
+check_docker() {
+    local container=$1
+    local name=$2
+    if docker ps -q -f name="$container" | grep -q .; then
+        printf "%-20s : \e[92m[ ON ]\e[0m\n" "$name"
+    else
+        printf "%-20s : \e[91m[ OFF ]\e[0m\n" "$name"
+    fi
+}
 
-echo ""
-echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m${NC}"
-echo -e "\E[44;1;39m            ⇱ Service Information ⇲             \E[0m"
-echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m${NC}"
-echo -e "❇️ Docker Container     : $DOCKER"
-echo -e "❇️ Xray Core            : $XRAY"
-echo -e "❇️ Nginx                : $NGINX"
-echo -e "❇️ Marzban Panel        : $MARZ"
-echo -e "❇️ SSH WebSocket        : $sws"
-echo -e "❇️ Dropbear             : $drop"
-echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m${NC}"
-echo -e "          MARZBAN SHARING PORT 443 SAFE"
-echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m${NC}"
+check_status "ssh" "OpenSSH"
+check_status "dropbear" "Dropbear"
+check_status "ssh-ws" "SSH WebSocket"
+check_status "udp-custom" "UDP Custom"
+check_status "cron" "Cronjob"
+check_status "vnstat" "Vnstat"
+
+check_docker "marzban-marzban-1" "Marzban Core"
+check_docker "marzban-nginx-1" "Marzban Nginx"
+
+echo -e "\e[96m======================================\e[0m"
 echo ""
