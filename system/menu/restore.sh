@@ -21,7 +21,7 @@ fi
 # Pastikan gdown terinstal
 if ! command -v gdown &>/dev/null; then
     echo -e "$(green "Menginstal gdown...")"
-    pip3 install --no-cache-dir gdown || { echo -e "$(red "Gagal menginstal gdown!")"; exit 1; }
+    pip3 install --no-cache-dir gdown --break-system-packages || { echo -e "$(red "Gagal menginstal gdown!")"; exit 1; }
 fi
 
 # Cek apakah ada file backup di /root
