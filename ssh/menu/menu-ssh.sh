@@ -51,7 +51,7 @@ read -p " Select menu :  "  opt
 echo -e ""
 case $opt in
 1) clear ; addssh ; exit ;;
-2) clear ; menber-ssh ; exit ;;
+2) clear ; member-ssh ; exit ;;
 3) clear ; delete-ssh ; exit ;;
 4) clear ; renew-ssh ; exit ;;
 5) clear ; cek-ssh ; exit ;;
