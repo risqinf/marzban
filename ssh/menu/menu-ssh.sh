@@ -50,7 +50,7 @@ echo -e ""
 read -p " Select menu :  "  opt
 echo -e ""
 case $opt in
-1) clear ; add-ssh ; exit ;;
+1) clear ; addssh ; exit ;;
 2) clear ; menber-ssh ; exit ;;
 3) clear ; delete-ssh ; exit ;;
 4) clear ; renew-ssh ; exit ;;
