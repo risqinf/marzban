@@ -101,6 +101,10 @@ Jika ada pertanyaan atau kendala, jangan ragu untuk mengajukan issue atau pull r
    ```sh
    tmux attach-session -t fn
    ```
+5. **Setelah Installasi Lakukan Renew Certificate Di menu**
+   ```
+   crt
+   ```
 
 ---
 
