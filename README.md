@@ -26,7 +26,7 @@ Proyek ini merupakan modifikasi dari [Marzban](https://github.com/Gozargah/Marzb
 
 ## **Fitur yang Didukung**
 - **Protocol:** VLess, VMess, Trojan, SSH
-- **Network:** WebSocket, HTTP Upgrade, gRPC *(unverified)*
+- **Network:** WebSocket, HTTP Upgrade, XHTTP
 - **Port:**
   - WebSocket: `443 (TLS)`, `80 (HTTP)`, **Wildcard path** → `/enter-your-custom-path/trojanws`
   - HTTP Upgrade: `443 (TLS)`, `80 (HTTP)`, **Wildcard path** → `/enter-your-custom-path/trojanhu`
@@ -34,6 +34,18 @@ Proyek ini merupakan modifikasi dari [Marzban](https://github.com/Gozargah/Marzb
   - Dropbear: `109`
   - OpenSSH: `3303`
   - SSH WebSocket & Multi Path SSH WebSocket
+  - OpenVPN TCP & UDP: `1194`, `2200`
+  - Open HTTP Puncher: `8181`, `8282`, `8383`
+  - HTTP Proxy / SQUID: `8080`, `3128`
+  - UDP CUSTOM: `1-65535`
+- **Tunnel:**
+  - STRX WS
+  - XLITE
+  - v2RAYNG
+  - Dark Tunnel
+  - HTTP CUSTOM
+  - HTTP INJECTOR
+  - UDP CUSTOM
 
 ---
 ## **Sistem yang Dapat Digunakan**
@@ -49,21 +61,23 @@ Berikut adalah daftar sistem operasi, penyedia layanan (ISP), dan jenis virtuali
 | Ubuntu 25.04 | ✅ |
 
 ## 🌐 ISP yang Didukung:
-- AWS
-- Azure
-- Digital Ocean
-- OVH
-- Herza
-- Nusa.id
-- Nusahost
-- Warna Host
-- Linode
-- Dewaweb
-- Rumah Web
-- Alibaba
-- Tencent
-- HostPapa
-- Hostdata
+| No | Provider        |
+|----|-----------------|
+| 1  | AWS             |
+| 2  | Azure           |
+| 3  | Digital Ocean   |
+| 4  | OVH             |
+| 5  | Herza           |
+| 6  | Nusa.id         |
+| 7  | Nusahost        |
+| 8  | Warna Host      |
+| 9  | Linode          |
+| 10 | Dewaweb         |
+| 11 | Rumah Web       |
+| 12 | Alibaba         |
+| 13 | Tencent         |
+| 14 | HostPapa        |
+| 15 | Hostdata        |
 - **Etc.** (Silakan coba dan laporkan jika ada kendala)
 
 ## Virtualisasi yang Didukung:
@@ -137,7 +151,7 @@ Lalu ubah variabel {SERVER_IP} dibawah menjadi domain yang sudah di pointing tad
 ---
 
 ## **Donasi**
-- **[QRIS ID](https://t.me/fn_project/245)**
+- **[SAWERIA](https://saweria.co/Melon3D)**
 
 ---
 
@@ -148,16 +162,14 @@ Lalu ubah variabel {SERVER_IP} dibawah menjadi domain yang sudah di pointing tad
 ---
 
 ## **Telegram Support**
-- [Farell Aditya](https://t.me/farell_aditya_ardian)
+- [Farell Aditya](https://t.me/farelvpn)
 - [Rerechan02](https://t.me/Rerechan02)
-- [Dinda Putri](https://t.me/DindaPutriFN)
-- [FN Project](https://t.me/fn_project)
+- [system.notes.labs](https://t.me/systems_notes)
 ---
 
 ## **Contributors**
-- [Rerechan02](https://github.com/Rerechan02)
-- [DindaPutriFN](https://github.com/DindaPutriFN)
-- [Farell Aditya](https://github.com/farelvpn)
+- [Rerechan02](https://github.com/FN-Rerechan02)
+- [RISQI](https://github.com/risqinf)
 
 ### **Special Thanks To**
 - [Gozargah](https://github.com/Gozargah/Marzban)
@@ -165,7 +177,6 @@ Lalu ubah variabel {SERVER_IP} dibawah menjadi domain yang sudah di pointing tad
 - [x0sina](https://github.com/x0sina/marzban-sub)
 - [Marling](https://github.com/GawrAme/MarLing)
 - [MarLum](https://github.com/Farell-VPN/mar-lum)
-- [AutoResbot](https://autoresbot.com)
 
 ## **Report a Bug**
 
