@@ -1,61 +1,97 @@
 #!/bin/bash
 
-# Ambil tanggal dari server Google
-DATE_FROM_SERVER=$(curl -sI --insecure https://google.com/ | grep -i ^Date: | sed 's/Date: //g')
-TODAY=$(date -d "$DATE_FROM_SERVER" +"%Y-%m-%d")
+# ==========================================
+# Variabel Warna Konsisten & Elegan
+# ==========================================
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+GREEN='\033[1;32m'
+RED='\033[0;31m'
+WHITE='\033[1;37m'
+NC='\033[0m' # No Color
+BG_BLUE='\e[44m' # Background Biru untuk Header
 
 clear
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "\E[40;1;37m               RENEW USER                 \E[0m"
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo
+# ==========================================
+# 1. Menampilkan Daftar User Terlebih Dahulu
+# ==========================================
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BG_BLUE}${WHITE}              LIST MEMBER SSH             ${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+printf "${CYAN}%-18s %-16s %-10s${NC}\n" "USERNAME" "EXPIRED" "STATUS"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-# Input Username
+# Membaca file passwd untuk list user
+while IFS=: read -r user pass uid gid info home shell; do
+    if [[ "$uid" -ge 1000 ]] && [[ "$user" != "ubuntu" ]] && [[ "$user" != "nobody" ]]; then
+        exp=$(chage -l "$user" | grep -i "Account expires" | awk -F": " '{print $2}')
+        [[ -z "$exp" || "$exp" == "never" ]] && exp="Never"
+
+        status=$(passwd -S "$user" | awk '{print $2}')
+        if [[ "$status" == "L" || "$status" == "LK" ]]; then
+            status_label="LOCKED"
+        else
+            status_label="UNLOCKED"
+        fi
+
+        printf "%-18s %-16s %-10s\n" "$user" "$exp" "$status_label"
+    fi
+done < /etc/passwd
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BG_BLUE}${WHITE}                 RENEW USER               ${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# ==========================================
+# 2. Proses Input dan Renew
+# ==========================================
 read -p "Username : " USER
 
-# Cek apakah user ada
-if getent passwd "$USER" > /dev/null; then
+# Cek input kosong
+if [ -z "$USER" ]; then
+    echo -e "${RED}Error: Username tidak boleh kosong!${NC}"
+    exit 1
+fi
+
+# Cek apakah user ada (validasi menggunakan command 'id')
+if id "$USER" &>/dev/null && [[ "$USER" != "ubuntu" && "$USER" != "nobody" ]]; then
     read -p "Day Extend : " DAYS
 
+    # Validasi input DAYS harus berupa angka
+    if ! [[ "$DAYS" =~ ^[0-9]+$ ]]; then
+        echo -e "${RED}Error: Day Extend harus berupa angka bulat!${NC}"
+        exit 1
+    fi
+
     # Ambil tanggal kedaluwarsa user saat ini
-    CURRENT_EXPIRATION=$(chage -l "$USER" | grep "Account expires" | awk -F": " '{print $2}')
+    CURRENT_EXPIRATION=$(chage -l "$USER" | grep -i "Account expires" | awk -F": " '{print $2}')
 
     # Jika akun tidak memiliki tanggal kedaluwarsa, gunakan hari ini sebagai dasar
     if [[ "$CURRENT_EXPIRATION" == "never" || -z "$CURRENT_EXPIRATION" ]]; then
-        CURRENT_EXPIRATION=$TODAY
+        CURRENT_EXPIRATION=$(date +"%Y-%m-%d")
     fi
 
-    # Konversi tanggal kedaluwarsa ke format timestamp
-    CURRENT_EXPIRATION_TIMESTAMP=$(date -d "$CURRENT_EXPIRATION" +%s)
+    # Hitung tanggal kedaluwarsa baru secara instan
+    NEW_EXPIRATION_DATE=$(date -d "$CURRENT_EXPIRATION + $DAYS days" +"%Y-%m-%d")
+    NEW_EXPIRATION_DISPLAY=$(date -d "$CURRENT_EXPIRATION + $DAYS days" +"%d %b %Y")
 
-    # Hitung tanggal kedaluwarsa baru
-    DAYS_SECONDS=$((DAYS * 86400))
-    NEW_EXPIRATION_TIMESTAMP=$((CURRENT_EXPIRATION_TIMESTAMP + DAYS_SECONDS))
-    NEW_EXPIRATION_DATE=$(date -u --date="@$NEW_EXPIRATION_TIMESTAMP" "+%Y-%m-%d")
-    NEW_EXPIRATION_DISPLAY=$(date -u --date="@$NEW_EXPIRATION_TIMESTAMP" "+%d %b %Y")
+    # Perpanjang masa aktif user dan buka kunci (unlock) jika sebelumnya terkunci
+    passwd -u "$USER" &>/dev/null
+    usermod -e "$NEW_EXPIRATION_DATE" "$USER" &>/dev/null
 
-    # Perpanjang masa aktif user
-    passwd -u "$USER"
-    usermod -e "$NEW_EXPIRATION_DATE" "$USER"
-
+    # Tampilkan output hasil berhasil renew
     clear
-    echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-    echo -e "\E[40;1;37m               RENEW USER                 \E[0m"
-    echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BG_BLUE}${WHITE}               RENEW SUCCESS              ${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e ""
-    echo -e " Username   : $USER"
-    echo -e " Days Added : $DAYS Days"
-    echo -e " Expires on : $NEW_EXPIRATION_DISPLAY"
+    echo -e " Username   : ${CYAN}$USER${NC}"
+    echo -e " Days Added : ${GREEN}$DAYS Days${NC}"
+    echo -e " Expires on : ${GREEN}$NEW_EXPIRATION_DISPLAY${NC}"
     echo -e ""
-    echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 else
-    clear
-    echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-    echo -e "\E[40;1;37m               RENEW USER                 \E[0m"
-    echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-    echo -e ""
-    echo -e "   Username does not exist!   "
-    echo -e ""
-    echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+    echo -e "${RED}Failure: User '$USER' not found!${NC}"
 fi
