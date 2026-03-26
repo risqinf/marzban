@@ -87,7 +87,7 @@ Jika ada pertanyaan atau kendala, jangan ragu untuk mengajukan issue atau pull r
 ## **Instalasi**
 1. **Update dan install dependensi**
    ```sh
-   apt-get update && apt install -y curl wget tmux dnsutils
+   apt-get update && apt install -y curl wget tmux dnsutils && apt --purge remove apache2 -y
    ```
 2. **Jalankan script instalasi**
    > Pastikan Anda sudah login sebagai `root` sebelum menjalankan perintah berikut:
