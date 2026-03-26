@@ -37,7 +37,7 @@ domain: $domain
 ————————————————
 ws http: 80
 ws https: 443
-openssh: 22
+openssh: 3303
 dropbear: 109, 69
 badvpn: 7300
 ————————————————
